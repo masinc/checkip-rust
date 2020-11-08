@@ -1,9 +1,7 @@
 mod ip_addr_client;
 
 use anyhow::Result;
-use ip_addr_client::{
-    amazon_aws::AmazonAws, fetch_ip_addr, http_bin::HttpBin, if_config::IfConfig,
-};
+use ip_addr_client::{fetch_ip_addr, AmazonAws, HttpBin, IfConfig};
 
 #[tokio::main]
 async fn main() -> Result<()> {
