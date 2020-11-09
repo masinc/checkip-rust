@@ -71,6 +71,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "lazy_static",
+ "rand",
  "reqwest",
  "serde",
  "tokio",

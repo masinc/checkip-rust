@@ -12,3 +12,5 @@ reqwest = { version = "0.10.8", features = ["json"]}
 tokio = { version = "0.2.22", features = ["full"]}
 anyhow = "1.0.34"
 serde = { version = "1.0.117", features = ["derive"]}
+rand = "0.7.3"
+lazy_static = "1.4.0"

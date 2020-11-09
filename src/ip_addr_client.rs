@@ -1,6 +1,7 @@
 pub mod amazon_aws;
 pub mod http_bin;
 pub mod if_config;
+pub mod prelude;
 
 use std::net::IpAddr;
 
@@ -16,9 +17,4 @@ pub use if_config::IfConfig;
 pub trait IpAddrClient {
     fn get_url(&self) -> String;
     async fn fetch(&self, request: &Client) -> Result<IpAddr>;
-}
-
-pub async fn fetch_ip_addr(get_ip_addr_client: &impl IpAddrClient) -> Result<IpAddr> {
-    let request = reqwest::Client::new();
-    Ok(get_ip_addr_client.fetch(&request).await?)
 }
