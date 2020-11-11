@@ -14,3 +14,4 @@ anyhow = "1.0.34"
 serde = { version = "1.0.117", features = ["derive"]}
 rand = "0.7.3"
 lazy_static = "1.4.0"
+clap = "2.33.3"
