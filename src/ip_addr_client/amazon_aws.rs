@@ -1,3 +1,6 @@
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
 use std::net::IpAddr;
 
 use super::IpAddrClient;
@@ -25,6 +28,7 @@ impl AmazonAws {
     }
 }
 
+#[cfg_attr(test, automock)]
 #[async_trait]
 impl IpAddrClient for AmazonAws {
     fn get_url(&self) -> String {
@@ -52,9 +56,15 @@ mod tests {
     #[tokio::test]
     async fn test_amazon_aws_http_fetch() {
         let request = reqwest::Client::new();
-        let client = AmazonAws::new_http();
+        let mut client = MockAmazonAws::new();
+        client
+            .expect_fetch()
+            .returning(|_| Ok("127.0.0.1".parse()?));
 
-        assert!(client.fetch(&request).await.is_ok());
+        assert_eq!(
+            "127.0.0.1".parse::<IpAddr>().unwrap(),
+            client.fetch(&request).await.unwrap()
+        );
     }
 
     #[test]

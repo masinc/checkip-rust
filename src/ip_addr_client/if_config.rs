@@ -1,3 +1,6 @@
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
 use std::net::IpAddr;
 
 use super::IpAddrClient;
@@ -24,6 +27,7 @@ impl IfConfig {
     }
 }
 
+#[cfg_attr(test, automock)]
 #[async_trait]
 impl IpAddrClient for IfConfig {
     async fn fetch(&self, request: &Client) -> Result<IpAddr> {
@@ -50,9 +54,15 @@ mod tests {
     #[tokio::test]
     async fn test_if_config_http_fetch() {
         let request = reqwest::Client::new();
-        let client = IfConfig::new_http();
+        let mut client = MockIfConfig::new();
+        client
+            .expect_fetch()
+            .returning(|_| Ok("127.0.0.1".parse()?));
 
-        assert!(client.fetch(&request).await.is_ok());
+        assert_eq!(
+            "127.0.0.1".parse::<IpAddr>().unwrap(),
+            client.fetch(&request).await.unwrap()
+        );
     }
 
     #[test]
