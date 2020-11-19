@@ -1,5 +1,5 @@
 #[cfg(test)]
-use mockall::{automock, predicate::*};
+use mockall::{mock, predicate::*};
 
 use std::net::IpAddr;
 
@@ -27,7 +27,7 @@ impl IfConfig {
     }
 }
 
-#[cfg_attr(test, automock)]
+// #[cfg_attr(test, automock)]
 #[async_trait]
 impl IpAddrClient for IfConfig {
     async fn fetch(&self, request: &Client) -> Result<IpAddr> {
@@ -38,6 +38,20 @@ impl IpAddrClient for IfConfig {
 
     fn get_url(&self) -> String {
         self.url.into()
+    }
+}
+
+#[cfg(test)]
+mock! {
+    pub IfConfig {
+        fn new_http() -> Self;
+        fn new_https() -> Self;
+    }
+
+    #[async_trait]
+    trait IpAddrClient {
+        fn get_url(&self) -> String;
+        async fn fetch(&self, request: &Client) -> Result<IpAddr>;
     }
 }
 
@@ -53,12 +67,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_if_config_http_fetch() {
-        let request = reqwest::Client::new();
-        let mut client = MockIfConfig::new();
+        let ctx = MockIfConfig::new_http_context();
+        ctx.expect().return_once(|| MockIfConfig::new());
+        let mut client = MockIfConfig::new_http();
         client
             .expect_fetch()
             .returning(|_| Ok("127.0.0.1".parse()?));
 
+        let request = reqwest::Client::new();
         assert_eq!(
             "127.0.0.1".parse::<IpAddr>().unwrap(),
             client.fetch(&request).await.unwrap()
@@ -72,9 +88,17 @@ mod tests {
     }
     #[tokio::test]
     async fn test_if_config_https_fetch() {
-        let request = reqwest::Client::new();
-        let client = IfConfig::new_https();
+        let ctx = MockIfConfig::new_https_context();
+        ctx.expect().return_once(|| MockIfConfig::new());
+        let mut client = MockIfConfig::new_https();
+        client
+            .expect_fetch()
+            .returning(|_| Ok("127.0.0.1".parse()?));
 
-        assert!(client.fetch(&request).await.is_ok());
+        let request = reqwest::Client::new();
+        assert_eq!(
+            "127.0.0.1".parse::<IpAddr>().unwrap(),
+            client.fetch(&request).await.unwrap()
+        );
     }
 }
